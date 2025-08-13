@@ -25,7 +25,7 @@ stock_input.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
 
 url = "https://api.football-data.org/v4/competitions/PL/standings"
-headers = {"X-Auth-Token": "aaacb7a9d68845869673a0145b323b79"}
+headers = {"X-Auth-Token": "ENTER YOUR API KEY"}
 
 response = requests.get(url, headers=headers)
 data = response.json()
