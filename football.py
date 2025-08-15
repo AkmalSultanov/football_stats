@@ -23,9 +23,10 @@ stock_Label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 stock_input = ttk.Entry(window)
 stock_input.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
+api = "aaacb7a9d68845869673a0145b323b79"
 
-url = "https://api.football-data.org/v4/competitions/PL/standings"
-headers = {"X-Auth-Token": "ENTER YOUR API KEY"}
+url = "https://api.football-data.org/v4/competitions/PD/standings"
+headers = {"X-Auth-Token": api}
 
 response = requests.get(url, headers=headers)
 data = response.json()
@@ -33,7 +34,21 @@ data = response.json()
 # print(response.status_code)
 # print(data)
 listed_teams = []
-league = data['competition']['name']
+# league = data['competition']['name']
+ 
+leagues_dict = {
+    "WC": "World Cup",
+    "CL": "Champions League",
+    "BL1": "Bundesliga",
+    "BSA": "Campeonato Brasileiro Série A",
+    "PD": "Primera Division",
+    "FL1": "Ligue 1",
+    "PL": "Premier League",
+    "SA": "Serie A",
+    "PPL": "Primeira Liga",
+    "DED": "Eredivisie"
+}
+
 for team in data['standings'][0]['table']:
     teams = team['team']['name']
     listed_teams.append(teams)
@@ -46,6 +61,18 @@ button.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
 season = data['filters']['season']
 # print(json.dumps(data, indent=4))
+
+#Drop down menu for league and teams
+clicked_team = StringVar()
+clicked_team.set("Select a football team")
+drop = OptionMenu(window, clicked_team, *listed_teams)
+drop.grid(row=0, column=3, padx=10, pady=10)
+
+clicked_league = tk.StringVar()
+clicked_league.set("Select a football league")
+drop_options = [f"{code} - {name}" for code, name in leagues_dict.items()]
+drop = OptionMenu(window, clicked_league, *drop_options)
+drop.grid(row=0, column=3, padx=10, pady=10)
 
 
 window.mainloop()
