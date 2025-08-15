@@ -23,7 +23,7 @@ stock_Label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 stock_input = ttk.Entry(window)
 stock_input.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
-api = "aaacb7a9d68845869673a0145b323b79"
+api = input("Enter your API key: ")
 
 url = "https://api.football-data.org/v4/competitions/PD/standings"
 headers = {"X-Auth-Token": api}
