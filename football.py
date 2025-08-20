@@ -4,9 +4,6 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import *
 import requests 
-import json
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
 
 window = tk.Tk()
 window.title("⚽ Football Stats Analyzer")
@@ -71,15 +68,17 @@ team_label.grid(row=0, column=0, padx=(0, 10), sticky='w')
 team_input = ttk.Entry(team_frame, width=30, font=('Arial', 11))
 team_input.grid(row=0, column=1, padx=10)
 
-api = input("Enter your api key: ")
+api = input("Enter your football-data.org API key: ")
+
 
 table_frame = ttk.Frame(window)
 table_frame.grid(row=4, column=0, columnspan=4, padx=20, pady=20, sticky='nsew')
 
-table = ttk.Treeview(table_frame, columns=('Pos', 'Team', 'Points'), show='headings')
+table = ttk.Treeview(table_frame, columns=('Pos', 'Team', 'Points', 'Games Played'), show='headings')
 table.heading('Pos', text='Position')
 table.heading('Team', text='Team Name')
 table.heading('Points', text='Points')
+table.heading("Games Played", text="Games Played")
 
 # Scrollbar
 scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=table.yview)
@@ -101,24 +100,37 @@ def button_click():
         messagebox.showerror("Error", "Could not fetch data for this league")
         return
 
-    listed_teams = [team["team"]["name"] for team in data["standings"][0]["table"]]
     extracted_team = team_input.get()
     
-    if extracted_team not in listed_teams:
+    team_found = False
+    for team_data in data['standings'][0]['table']:
+        if (team_data['team']['name'].lower() == extracted_team.lower() or 
+            team_data['team']['shortName'].lower() == extracted_team.lower()):
+            team_found = True
+            break
+
+    if not team_found:
         messagebox.showerror("Error", f"Could not find '{extracted_team}' in the league '{selected}'")
         return
-    else:
-        existing_teams = [table.item(item)['values'][1] for item in table.get_children()]
-        if extracted_team in existing_teams:
-            messagebox.showinfo("Info", f"{extracted_team} is already in the table")
-            return
-        
-        for team_data in data['standings'][0]['table']:
-            if team_data['team']['name'] == extracted_team:
-                position = team_data['position']
-                points = team_data['points']
-                table.insert('', 'end', values=(position, extracted_team, points))
-                break
+    
+    # Check for duplicates
+    existing_teams = [table.item(item)['values'][1] for item in table.get_children()]
+    if extracted_team in existing_teams:
+        messagebox.showinfo("Info", f"{extracted_team} is already in the table")
+        return
+    
+    # Add team to table
+    for team_data in data['standings'][0]['table']:
+        if (team_data['team']['name'].lower() == extracted_team.lower() or 
+            team_data['team']['shortName'].lower() == extracted_team.lower()):
+            position = team_data['position']
+            points = team_data['points']
+            games_played = team_data['playedGames']
+            team_name = team_data['team']['name'] 
+            table.insert('', 'end', values=(position, team_name, points, games_played))
+            break
+
+    
 
 
 button = ttk.Button(team_frame, text="🚀 Analyze Team", command=button_click)
